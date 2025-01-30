@@ -1,2 +1,2 @@
 #!/bin/bash
-ls --full-time
+ls -a --full-time
