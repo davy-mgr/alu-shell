@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -la --sort=t /alu-shell/basics  /alu-shell  /boot
+ls -la --sort=n /alu-shell/basics  /alu-shell  /boot
