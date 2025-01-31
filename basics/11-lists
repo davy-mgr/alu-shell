@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -a /alu-shell/basics /root /boot
+ls -a --full-time  /alu-shell/basics /alu-shell /boot
