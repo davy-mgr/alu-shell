@@ -1,2 +1,2 @@
 #!/bin/bash
-getent group 
+getent group | grep root 
