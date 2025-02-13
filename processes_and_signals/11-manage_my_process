@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#bash script to manage 'manage_my_process'
+# Script to manage 'manage_my_process'
 if [ "$1" == "start" ]; then
     ./manage_my_process &
     echo $$ > /var/run/my_process.pid
