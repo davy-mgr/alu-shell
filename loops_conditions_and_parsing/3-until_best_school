@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Script will Print Best School 10 times
 
-counter=10
+counter=0
 
 
 until [ $count -eq 10 ]
