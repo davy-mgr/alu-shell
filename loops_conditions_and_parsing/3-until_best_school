@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # Script will Print Best School 10 times
+
 counter=10
-until [  $counter -lt 1 ]; do
-    echo "Best School"
-    let counter-=1
+
+
+until [ $count -eq 10 ]
+do
+  echo "Best School"
+  (( count++ ))
 done
