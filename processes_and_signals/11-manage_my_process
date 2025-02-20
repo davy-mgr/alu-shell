@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
-#
+# Ensure the script gets debug output for each step
+set -x
+
 if [ "$1" = "start" ]; then
     # Start the process in the background
     ./manage_my_process &
     
-    # Save the PID of the background process to the PID file
-    echo $! | sudo tee /var/run/my_process.pid > /dev/null
+    # Capture the PID of the background process
+    PID=$!
+    echo "Process PID: $PID"
+    
+    # Save the PID to /var/run/my_process.pid
+    echo $PID | sudo tee /var/run/my_process.pid > /dev/null
     
     echo "manage_my_process started"
     
@@ -26,8 +32,12 @@ elif [ "$1" = "restart" ]; then
     # Start the process again in the background
     ./manage_my_process &
     
+    # Capture the new PID
+    PID=$!
+    echo "Process PID: $PID"
+    
     # Save the new PID to the PID file
-    echo $! | sudo tee /var/run/my_process.pid > /dev/null
+    echo $PID | sudo tee /var/run/my_process.pid > /dev/null
     
     echo "manage_my_process restarted"
     
@@ -35,3 +45,6 @@ else
     # If an invalid argument is provided, show usage
     echo "Usage: manage_my_process {start|stop|restart}"
 fi
+
+# Disable debug output after script finishes
+set +x
