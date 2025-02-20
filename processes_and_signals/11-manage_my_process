@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-#
-
-echo "Argument received: $1"  # Debugging line to print the argument
+# Check if the argument is "start"
 
 if [ "$1" = "start" ]; then
     # Start the process in the background
@@ -12,6 +10,7 @@ if [ "$1" = "start" ]; then
     
     echo "manage_my_process started"
     
+# Check if the argument is "stop"
 elif [ "$1" = "stop" ]; then
     # Kill the process by matching the name
     pkill -f ./manage_my_process
@@ -21,6 +20,7 @@ elif [ "$1" = "stop" ]; then
     
     echo "manage_my_process stopped"
     
+# Check if the argument is "restart"
 elif [ "$1" = "restart" ]; then
     # Stop the process if it's running
     pkill -f ./manage_my_process
@@ -34,8 +34,8 @@ elif [ "$1" = "restart" ]; then
     
     echo "manage_my_process restarted"
     
+# If an invalid argument is provided, show usage
 else
-    # If an invalid argument is provided, show usage
     echo "Usage: manage_my_process {start|stop|restart}"
 fi
 
