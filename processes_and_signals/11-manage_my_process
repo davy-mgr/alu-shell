@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Enable debugging to trace issues
 set -x
 
