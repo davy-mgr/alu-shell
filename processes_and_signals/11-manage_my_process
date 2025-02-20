@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Check if the argument is "start"
 if [ "$1" = "start" ]; then
     # Check if the process is already running by checking the PID file
