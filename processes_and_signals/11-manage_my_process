@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
-# Check if the argument is "start"
 
+# Check if the argument is "start"
 if [ "$1" = "start" ]; then
+    # Check if the process is already running by checking the PID file
+    if [ -f /var/run/my_process.pid ]; then
+        echo "manage_my_process is already running with PID $(cat /var/run/my_process.pid)"
+        exit 1
+    fi
+    
     # Start the process in the background
     ./manage_my_process &
     
@@ -12,19 +18,51 @@ if [ "$1" = "start" ]; then
     
 # Check if the argument is "stop"
 elif [ "$1" = "stop" ]; then
-    # Kill the process by matching the name
-    pkill -f ./manage_my_process
-    
-    # Remove the PID file
-    sudo rm -f /var/run/my_process.pid
-    
-    echo "manage_my_process stopped"
+    # Check if the PID file exists and stop the process using the PID
+    if [ -f /var/run/my_process.pid ]; then
+        PID=$(cat /var/run/my_process.pid)
+        echo "Stopping manage_my_process with PID $PID"
+        
+        # Kill the process using the PID from the PID file
+        sudo kill $PID
+        
+        # Check if the process was successfully stopped
+        if [ $? -eq 0 ]; then
+            echo "manage_my_process stopped"
+        else
+            echo "Failed to stop manage_my_process"
+        fi
+        
+        # Remove the PID file
+        sudo rm -f /var/run/my_process.pid
+        echo "PID file removed."
+    else
+        echo "No PID file found. Process may not be running."
+    fi
     
 # Check if the argument is "restart"
 elif [ "$1" = "restart" ]; then
     # Stop the process if it's running
-    pkill -f ./manage_my_process
-    sudo rm -f /var/run/my_process.pid
+    if [ -f /var/run/my_process.pid ]; then
+        PID=$(cat /var/run/my_process.pid)
+        echo "Stopping manage_my_process with PID $PID"
+        
+        # Kill the process
+        sudo kill $PID
+        
+        # Check if the process was successfully stopped
+        if [ $? -eq 0 ]; then
+            echo "manage_my_process stopped"
+        else
+            echo "Failed to stop manage_my_process"
+        fi
+        
+        # Remove the PID file
+        sudo rm -f /var/run/my_process.pid
+        echo "PID file removed."
+    else
+        echo "No PID file found. Process may not be running."
+    fi
     
     # Start the process again in the background
     ./manage_my_process &
