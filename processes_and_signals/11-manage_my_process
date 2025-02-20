@@ -1,22 +1,37 @@
 #!/usr/bin/env bash
 #
-if [ "$1" = "start" ]
-then
-		./manage_my_process &
-			sudo bash -c "echo $$ > /var/run/my_process.pid"
-				echo "manage_my_process started"
-			elif [ "$1" = "stop" ]
-			then
-					pkill -f ./manage_my_process
-						sudo rm -f /var/run/my_process.pid
-							echo "manage_my_process stopped"
-						elif [ "$1" = "restart" ]
-						then
-								pkill -f ./manage_my_process
-									sudo rm -f /var/run/my_process.pid
-										./manage_my_process &
-											sudo bash -c "echo $$ > /var/run/my_process.pid"
-												echo "manage_my_process restarted"
-											else
-													echo "Usage: manage_my_process {start|stop|restart}"
+if [ "$1" = "start" ]; then
+    # Start the process in the background
+    ./manage_my_process &
+    
+    # Save the PID of the background process to the PID file
+    echo $! | sudo tee /var/run/my_process.pid > /dev/null
+    
+    echo "manage_my_process started"
+    
+elif [ "$1" = "stop" ]; then
+    # Kill the process by matching the name
+    pkill -f ./manage_my_process
+    
+    # Remove the PID file
+    sudo rm -f /var/run/my_process.pid
+    
+    echo "manage_my_process stopped"
+    
+elif [ "$1" = "restart" ]; then
+    # Stop the process if it's running
+    pkill -f ./manage_my_process
+    sudo rm -f /var/run/my_process.pid
+    
+    # Start the process again in the background
+    ./manage_my_process &
+    
+    # Save the new PID to the PID file
+    echo $! | sudo tee /var/run/my_process.pid > /dev/null
+    
+    echo "manage_my_process restarted"
+    
+else
+    # If an invalid argument is provided, show usage
+    echo "Usage: manage_my_process {start|stop|restart}"
 fi
