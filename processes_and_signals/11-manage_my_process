@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 #
+
+echo "Argument received: $1"  # Debugging line to print the argument
+
 if [ "$1" = "start" ]; then
     # Start the process in the background
     ./manage_my_process &
