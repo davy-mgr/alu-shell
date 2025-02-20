@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+#
 if [ "$1" = "start" ]; then
     # Start the process in the background
     ./manage_my_process &
