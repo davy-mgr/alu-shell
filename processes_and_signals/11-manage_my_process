@@ -1,96 +1,38 @@
 #!/usr/bin/env bash
-# Enable debugging to trace issues
-set -x
 
-# Check if command-line argument is provided
-if [ -z "$1" ]; then
-    echo "Error: No action specified."
-    echo "Usage: manage_my_process {start|stop|restart}"
-    exit 1
-fi
-
-# Start the process
 if [ "$1" = "start" ]; then
-    echo "Starting manage_my_process..."
     # Start the process in the background
     ./manage_my_process &
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to start manage_my_process."
-        exit 1
-    fi
     
-    # Capture the PID of the background process
-    PID=$!
-    echo "manage_my_process PID: $PID"
+    # Save the PID of the background process to the PID file
+    echo $! | sudo tee /var/run/my_process.pid > /dev/null
     
-    # Write the PID to the PID file
-    echo $PID | sudo tee /var/run/my_process.pid > /dev/null
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to write PID to /var/run/my_process.pid."
-        exit 1
-    fi
-
-    echo "manage_my_process started successfully."
-
-# Stop the process
+    echo "manage_my_process started"
+    
 elif [ "$1" = "stop" ]; then
-    echo "Stopping manage_my_process..."
-    # Get the PID from the PID file
-    if [ ! -f /var/run/my_process.pid ]; then
-        echo "Error: PID file not found. Is the process running?"
-        exit 1
-    fi
-
-    PID=$(cat /var/run/my_process.pid)
-    pkill -f "$PID"
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to stop manage_my_process."
-        exit 1
-    fi
-
+    # Kill the process by matching the name
+    pkill -f ./manage_my_process
+    
     # Remove the PID file
     sudo rm -f /var/run/my_process.pid
-    echo "manage_my_process stopped successfully."
-
-# Restart the process
-elif [ "$1" = "restart" ]; then
-    echo "Restarting manage_my_process..."
-    # Stop the process if it's running
-    if [ -f /var/run/my_process.pid ]; then
-        PID=$(cat /var/run/my_process.pid)
-        pkill -f "$PID"
-        if [ $? -ne 0 ]; then
-            echo "Error: Failed to stop manage_my_process."
-            exit 1
-        fi
-        sudo rm -f /var/run/my_process.pid
-    fi
-
-    # Start the process again
-    ./manage_my_process &
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to start manage_my_process after restart."
-        exit 1
-    fi
-
-    PID=$!
-    echo "manage_my_process PID: $PID"
     
-    # Write the new PID to the PID file
-    echo $PID | sudo tee /var/run/my_process.pid > /dev/null
-    if [ $? -ne 0 ]; then
-        echo "Error: Failed to write PID to /var/run/my_process.pid."
-        exit 1
-    fi
-
-    echo "manage_my_process restarted successfully."
-
-# Invalid argument
+    echo "manage_my_process stopped"
+    
+elif [ "$1" = "restart" ]; then
+    # Stop the process if it's running
+    pkill -f ./manage_my_process
+    sudo rm -f /var/run/my_process.pid
+    
+    # Start the process again in the background
+    ./manage_my_process &
+    
+    # Save the new PID to the PID file
+    echo $! | sudo tee /var/run/my_process.pid > /dev/null
+    
+    echo "manage_my_process restarted"
+    
 else
+    # If an invalid argument is provided, show usage
     echo "Usage: manage_my_process {start|stop|restart}"
-    exit 1
 fi
-
-# Disable debugging after script execution
-set +x
 
