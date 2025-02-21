@@ -1,78 +1,38 @@
 #!/usr/bin/env bash
-# Check if the argument is "start"
-if [ "$1" = "start" ]; then
-    # Check if the process is already running by checking the PID file
-    if [ -f /var/run/my_process.pid ]; then
-        echo "manage_my_process is already running with PID $(cat /var/run/my_process.pid)"
-        exit 1
-    fi
-    
-    # Start the process in the background
-    ./manage_my_process &
-    
-    # Save the PID of the background process to the PID file
-    echo $! | sudo tee /var/run/my_process.pid > /dev/null
-    
-    echo "manage_my_process started"
-    
-# Check if the argument is "stop"
-elif [ "$1" = "stop" ]; then
-    # Check if the PID file exists and stop the process using the PID
-    if [ -f /var/run/my_process.pid ]; then
-        PID=$(cat /var/run/my_process.pid)
-        echo "Stopping manage_my_process with PID $PID"
-        
-        # Kill the process using the PID from the PID file
-        sudo kill $PID
-        
-        # Check if the process was successfully stopped
-        if [ $? -eq 0 ]; then
-            echo "manage_my_process stopped"
-        else
-            echo "Failed to stop manage_my_process"
-        fi
-        
-        # Remove the PID file
-        sudo rm -f /var/run/my_process.pid
-        echo "PID file removed."
-    else
-        echo "No PID file found. Process may not be running."
-    fi
-    
-# Check if the argument is "restart"
-elif [ "$1" = "restart" ]; then
-    # Stop the process if it's running
-    if [ -f /var/run/my_process.pid ]; then
-        PID=$(cat /var/run/my_process.pid)
-        echo "Stopping manage_my_process with PID $PID"
-        
-        # Kill the process
-        sudo kill $PID
-        
-        # Check if the process was successfully stopped
-        if [ $? -eq 0 ]; then
-            echo "manage_my_process stopped"
-        else
-            echo "Failed to stop manage_my_process"
-        fi
-        
-        # Remove the PID file
-        sudo rm -f /var/run/my_process.pid
-        echo "PID file removed."
-    else
-        echo "No PID file found. Process may not be running."
-    fi
-    
-    # Start the process again in the background
-    ./manage_my_process &
-    
-    # Save the new PID to the PID file
-    echo $! | sudo tee /var/run/my_process.pid > /dev/null
-    
-    echo "manage_my_process restarted"
-    
-# If an invalid argument is provided, show usage
-else
-    echo "Usage: manage_my_process {start|stop|restart}"
-fi
+#
+# Manage the 'manage_my_process' daemon
 
+PROGRAM='manage_my_process'
+RELPATH="${0%/*}/${PROGRAM}"
+PIDFILE="${PIDFILE:-/var/run/my_process.pid}"
+declare -A MESSAGES=( 
+  ['start']='started'
+  ['stop']='stopped'
+  ['restart']='restarted'
+)
+
+start() {
+  exec -- "${RELPATH}" &
+  echo "$!" >| "${PIDFILE}"
+}
+
+stop() {
+  trap '
+    trap RETURN
+    rm -f -- "${PIDFILE}"
+  ' RETURN
+  kill -- "$(< "${PIDFILE}")" 2> /dev/null
+}
+
+restart() {
+  stop
+  start
+}
+
+if (( $# == 1 )) && [[ -v "MESSAGES[$1]" ]]
+then
+  "$1" && printf '%s %s\n' "${PROGRAM}" "${MESSAGES[$1]}"
+else
+  printf 'Usage: %s {start|stop|restart}\n' "${PROGRAM}"
+  exit 1
+fi
